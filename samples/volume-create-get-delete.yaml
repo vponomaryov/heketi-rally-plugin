@@ -1,0 +1,23 @@
+---
+  version: 2
+  title: Tasks for testing volume creation, its info retrieving and deletion
+  subtasks:
+    {% for volume_type in ("file", "block") %}
+    -
+      title: Test {{ volume_type }} volumes retrieving
+      scenario:
+        Heketi.volume_create_get_delete:
+          size: 1
+          volume_type: {{ volume_type }}
+          sleep_before_getting: 0.01
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "http://fake-heketi-url:8080"
+          username: "admin"
+          secret: "admin"
+    {% endfor %}

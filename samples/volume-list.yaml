@@ -1,0 +1,20 @@
+---
+  version: 2
+  title: Tasks for testing volume listing using Heketi
+  subtasks:
+    {% for volume_type in ("file", "block") %}
+    -
+      title: Test {{ volume_type }} volumes
+      scenario:
+        Heketi.volume_list:
+          volume_type: {{ volume_type }}
+      runner:
+        constant:
+          times: 20
+          concurrency: 10
+      contexts:
+        heketi_client:
+          server: "http://fake-heketi-url:8080"
+          username: "admin"
+          secret: "admin"
+    {% endfor %}

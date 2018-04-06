@@ -1,0 +1,22 @@
+---
+  version: 2
+  title: Tasks for testing volume creation, expansion and deletion using Heketi
+  subtasks:
+    -
+      title: Test file volumes expansion
+      scenario:
+        Heketi.volume_create_expand_delete:
+          size: 1
+          expand_size: 1
+          volume_type: file
+          sleep_before_entension: 0.01
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "http://fake-heketi-url:8080"
+          username: "admin"
+          secret: "admin"
