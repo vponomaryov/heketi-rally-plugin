@@ -1,0 +1,15 @@
+- hosts: all
+  gather_facts: no
+  become: no
+  tasks:
+  - name: Disable 'glusterd' on VMWare VMs
+    service:
+      name: glusterd
+      state: stopped
+  - name: Sleep for some time before enabling of VMs
+    pause:
+      seconds: "{{ downtime_in_seconds | default(30) }}"
+  - name: Enable 'glusterd' on VMWare VMs
+    service:
+      name: glusterd
+      state: started

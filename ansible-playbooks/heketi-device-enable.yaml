@@ -1,0 +1,10 @@
+- hosts: all
+  gather_facts: no
+  become: no
+  tasks:
+  - name: Enable Heketi node
+    command: "heketi-cli
+                 --server={{ heketi_server }}
+                 --user={{ heketi_user }}
+                 --secret={{ heketi_secret }}
+                 device enable {{ heketi_device_id }}"
