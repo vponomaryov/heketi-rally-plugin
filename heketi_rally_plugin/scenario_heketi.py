@@ -2,7 +2,7 @@ import time
 
 from rally.task import scenario
 
-from heketi_rally_plugin import scenario_base
+from heketi_rally_plugin import scenario_heketi_base as scenario_base
 
 
 @scenario.configure(name="Heketi.volume_create_delete")

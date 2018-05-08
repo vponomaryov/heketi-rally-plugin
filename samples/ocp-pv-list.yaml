@@ -1,0 +1,15 @@
+---
+  version: 2
+  title: Tasks for testing PV listing using OCP
+  subtasks:
+    -
+      title: List persistent volumes
+      scenario:
+        OCP.pv_list: {}
+      runner:
+        constant:
+          times: 20
+          concurrency: 10
+      contexts:
+        ocp_client:
+          config_path: "~/.kube/config"
