@@ -3,7 +3,7 @@ from rally import consts as rally_consts
 from rally import exceptions
 from rally.task import context
 
-from heketi_rally_plugin import client as heketi_client
+from heketi_rally_plugin import client_heketi
 
 CONTEXT_NAME = "heketi_client"
 LOG = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ class HeketiClientContext(context.Context):
     }
 
     def setup(self):
-        client = heketi_client.HeketiClient(
+        client = client_heketi.HeketiClient(
             host=self.config.get("server"),
             user=self.config.get("username"),
             key=self.config.get("secret"),

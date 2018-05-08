@@ -2,11 +2,11 @@ import time
 
 from rally.task import scenario
 
-from heketi_rally_plugin import base_scenario
+from heketi_rally_plugin import scenario_base
 
 
 @scenario.configure(name="Heketi.volume_create_delete")
-class HeketiVolumeCreateDeleteScenario(base_scenario.HeketiScenarioBase):
+class HeketiVolumeCreateDeleteScenario(scenario_base.HeketiScenarioBase):
     def run(self, size=1, volume_type='file', sleep_before_deletion=0):
         """File/Block volume creation and deletion scenario.
 
@@ -23,7 +23,7 @@ class HeketiVolumeCreateDeleteScenario(base_scenario.HeketiScenarioBase):
 
 
 @scenario.configure(name="Heketi.volume_create_expand_delete")
-class HeketiVolumeCreateExpandDeleteScenario(base_scenario.HeketiScenarioBase):
+class HeketiVolumeCreateExpandDeleteScenario(scenario_base.HeketiScenarioBase):
     def run(self, size=1, expand_size=1, volume_type='file',
             sleep_before_entension=0, sleep_before_deletion=0):
         """File/Block volume creation, expansion and deletion scenario.
@@ -57,7 +57,7 @@ class HeketiVolumeCreateExpandDeleteScenario(base_scenario.HeketiScenarioBase):
 
 
 @scenario.configure(name="Heketi.volume_create_get_delete")
-class HeketiVolumeCreateGetDeleteScenario(base_scenario.HeketiScenarioBase):
+class HeketiVolumeCreateGetDeleteScenario(scenario_base.HeketiScenarioBase):
     def run(self, size=1, volume_type='file', sleep_before_deletion=0):
         """File/Block volume creation, getting and deletion scenario.
 
@@ -77,7 +77,7 @@ class HeketiVolumeCreateGetDeleteScenario(base_scenario.HeketiScenarioBase):
 
 
 @scenario.configure(name="Heketi.volume_list")
-class HeketiVolumeListScenario(base_scenario.HeketiScenarioBase):
+class HeketiVolumeListScenario(scenario_base.HeketiScenarioBase):
     def run(self, volume_type='file'):
         """File/Block volume listing scenario.
 
