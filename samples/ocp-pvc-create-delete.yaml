@@ -1,0 +1,25 @@
+---
+  version: 2
+  title: Tasks for testing PVC creation and deletion
+  subtasks:
+    -
+      title: Create and delete persistent volume claims
+      scenario:
+        OCP.pvc_create_delete:
+          storage_class: 'glusterfs-cns'
+          namespace: 'default'
+          size: 1
+          name_prefix: 'rally'
+          creation_timeout: 120
+          creation_waiting_step: 1.7
+          sleep_before_deletion: 0.2
+          deletion_timeout: 120
+          deletion_waiting_step: 1.5
+          delete_pvc_if_failed: true
+      runner:
+        constant:
+          times: 7
+          concurrency: 3
+      contexts:
+        ocp_client:
+          config_path: "~/.kube/config"
