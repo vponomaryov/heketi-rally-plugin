@@ -9,7 +9,7 @@ This is plugin for `Rally`_ project.
 
 .. _Rally: https://rally.readthedocs.io/en/latest/
 
-With this tool you'll be able to generate load for Heketi, using various
+With this tool you'll be able to generate load for Heketi or CNS, using various
 scenarios which create, expand and delete Gluster 'file' and 'block' volumes.
 
 How to use this plugin
@@ -27,6 +27,11 @@ Now, take some sample from 'samples/' dir, update it according to your needs
 and run it using following command::
 
     $ tox -e heketi -- rally task start scenario-file-name.yaml
+
+For running OCP scenarios you need to have kube config file on runner machine
+and specify it in scenario context. Default path is '~/.kube/config'.
+Usually, such config file available on master nodes
+where you run 'oc' commands. Path is the same.
 
 For more details read `Rally`_ project docs.
 
