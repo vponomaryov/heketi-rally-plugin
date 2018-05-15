@@ -9,6 +9,7 @@
           size: 1
           expand_size: 1
           volume_type: file
+          name_prefix: "rally"
           sleep_before_entension: 0.01
           sleep_before_deletion: 0.02
       runner:

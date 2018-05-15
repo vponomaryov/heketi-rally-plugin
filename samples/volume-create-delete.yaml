@@ -9,6 +9,7 @@
         Heketi.volume_create_delete:
           size: 1
           volume_type: {{ volume_type }}
+          name_prefix: "rally"
           sleep_before_deletion: 0.01
       runner:
         constant:
