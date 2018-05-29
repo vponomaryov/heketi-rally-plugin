@@ -15,6 +15,14 @@ scenarios which create, expand and delete Gluster 'file' and 'block' volumes.
 How to use this plugin
 ======================
 
+Install following required system packages if not installed yet::
+
+    $ yum install python-pip git gcc python-devel
+
+Install “tox” if not installed yet::
+
+    $ pip install git+git://github.com/tox-dev/tox.git@2.9.1#egg=tox
+
 Run following command once to create DB instance for Rally project::
 
     $ tox -e heketi -- rally db create
