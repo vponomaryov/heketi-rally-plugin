@@ -1,10 +1,13 @@
 from rally.task import atomic
 from rally.task import scenario
 
+from heketi_rally_plugin import utils
+
 
 class HeketiScenarioBase(scenario.Scenario):
     """Base class for Heketi scenarios."""
 
+    @utils.timeout(300)
     @atomic.action_timer("volume_create")
     def _volume_create(self, volume_options=None, volume_type='file'):
         """Atomic action for 'file' or 'block' volumes creation.
@@ -19,6 +22,7 @@ class HeketiScenarioBase(scenario.Scenario):
             "%svolume_create" % ("" if volume_type == "file" else "block"))(
                 volume_options=volume_options)
 
+    @utils.timeout(60)
     @atomic.action_timer("volume_list")
     def _volume_list(self, volume_type='file'):
         """Atomic action for listing 'file' or 'block' volumes.
@@ -30,6 +34,7 @@ class HeketiScenarioBase(scenario.Scenario):
             self.context["heketi_client"],
             "%svolume_list" % ("" if volume_type == "file" else "block"))()
 
+    @utils.timeout(60)
     @atomic.action_timer("volume_info")
     def _volume_info(self, volume_id, volume_type='file'):
         """Atomic action for getting info of 'file' or 'block' volume.
@@ -43,6 +48,7 @@ class HeketiScenarioBase(scenario.Scenario):
             "%svolume_info" % ("" if volume_type == "file" else "block"))(
                 volume_id)
 
+    @utils.timeout(300)
     @atomic.action_timer("volume_expand")
     def _volume_expand(self, volume_id, expand_size=None, volume_type='file'):
         """Atomic action for 'file' or 'block' volume expansion.
@@ -57,6 +63,7 @@ class HeketiScenarioBase(scenario.Scenario):
             "%svolume_expand" % ("" if volume_type == "file" else "block"))(
                 volume_id, expand_size=expand_size)
 
+    @utils.timeout(300)
     @atomic.action_timer("volume_delete")
     def _volume_delete(self, volume_id, volume_type='file'):
         """Atomic action for deleting 'file' or 'block' volume.

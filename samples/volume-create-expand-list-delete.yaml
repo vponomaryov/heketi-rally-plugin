@@ -1,15 +1,16 @@
 ---
   version: 2
-  title: Tasks for testing volume creation, its info retrieving and deletion
+  title: Tasks for testing volume creation, expansion and deletion using Heketi
   subtasks:
-    {% for volume_type in ("file", "block") %}
     -
-      title: Test {{ volume_type }} volumes retrieving
+      title: Test file volumes expansion
       scenario:
-        Heketi.volume_create_get_delete:
+        Heketi.volume_create_expand_list_delete:
           size: 1
-          volume_type: {{ volume_type }}
+          expand_size: 1
+          volume_type: file
           name_prefix: "rally"
+          sleep_before_entension: 0.01
           sleep_before_deletion: 0.02
       runner:
         constant:
@@ -20,4 +21,3 @@
           server: "http://fake-heketi-url:8080"
           username: "admin"
           secret: "admin"
-    {% endfor %}
