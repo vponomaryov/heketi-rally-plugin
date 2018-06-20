@@ -6,7 +6,7 @@
     -
       title: Test {{ volume_type }} volumes retrieving
       scenario:
-        Heketi.volume_create_get_delete:
+        Heketi.volume_create_list_delete:
           size: 1
           volume_type: {{ volume_type }}
           name_prefix: "rally"

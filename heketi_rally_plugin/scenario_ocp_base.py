@@ -105,3 +105,42 @@ class OCPScenarioBase(scenario.Scenario):
                 raise
             time.sleep(deletion_waiting_step)
         raise Exception("Failed to wait for '%s' PV to be deleted." % name)
+
+    def _run(self, storage_classes,
+             namespace='default', size=1, name_prefix="rally",
+             creation_timeout=120.0, creation_waiting_step=0.7,
+             sleep_before_deletion=0.1,
+             deletion_timeout=120.0, deletion_waiting_step=0.5,
+             delete_pvc_if_failed=True,
+             list_pvcs=False, list_pvs=False):
+        if not isinstance(storage_classes, (list, tuple, set)):
+            storage_classes = (storage_classes, )
+        pvcs = []
+        for storage_class in storage_classes:
+            pvcs.append(self._pvc_create(
+                storage_class=storage_class,
+                namespace=namespace,
+                size=size,
+                name_prefix=name_prefix,
+                creation_timeout=creation_timeout,
+                creation_waiting_step=creation_waiting_step,
+                delete_pvc_if_failed=delete_pvc_if_failed,
+            ))
+
+        if list_pvcs:
+            self._pvc_list(namespace=namespace)
+        if list_pvs:
+            self._pv_list()
+
+        # NOTE(vponomar): we do not use 'grace_period_seconds' from
+        #                 kubernetes client because it is integer, not float.
+        if sleep_before_deletion > 0:
+            time.sleep(sleep_before_deletion)
+
+        for pvc in pvcs:
+            self._pvc_delete(
+                name=pvc.metadata.name,
+                namespace=namespace,
+                deletion_timeout=deletion_timeout,
+                deletion_waiting_step=deletion_waiting_step,
+            )

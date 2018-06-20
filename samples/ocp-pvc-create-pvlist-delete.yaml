@@ -3,15 +3,15 @@
   title: Tasks for testing PVC creation and deletion
   subtasks:
     -
-      title: Create PVCs per each storage class and then delete
+      title: Create PVCs per each storage class, list PVs and delete PVCs
       scenario:
-        OCP.pvc_create_delete:
+        OCP.pvc_create_pvlist_delete:
           storage_classes:
           - 'glusterfs-cns'
           - 'glusterfs-cns-block'
           namespace: 'default'
           size: 1
-          name_prefix: 'rally-pvc-create-delete'
+          name_prefix: 'rally-pvc-create-pvlist-delete'
           creation_timeout: 120
           creation_waiting_step: 1.7
           sleep_before_deletion: 0.2
