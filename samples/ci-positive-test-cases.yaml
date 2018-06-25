@@ -1,0 +1,296 @@
+---
+  version: 2
+  title: Set of scenarios to test an OCP deployment
+  subtasks:
+    -
+      title: "1. Create and delete N pvc (file)"
+      scenario:
+        OCP.pvc_create_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          name_prefix: 'rally-pvc-create-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "2. Create and delete N pvc, run pvc list in parallel (file)"
+      scenario:
+        OCP.pvc_create_pvclist_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          name_prefix: 'rally-pvc-create-pvclist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "3. Create and delete N pvc, run pv list in parallel (file)"
+      scenario:
+        OCP.pvc_create_pvlist_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          name_prefix: 'rally-pvc-create-pvlist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "4. Create and delete N pvc (block)"
+      scenario:
+        OCP.pvc_create_delete:
+          storage_classes:
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-blockpvc-create-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "5. Create and delete N pvc, run pvc list in parallel (block)"
+      scenario:
+        OCP.pvc_create_pvclist_delete:
+          storage_classes:
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-blockpvc-create-pvclist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "6. Create and delete N pvc, run pv list in parallel (block)"
+      scenario:
+        OCP.pvc_create_pvlist_delete:
+          storage_classes:
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-blockpvc-create-pvlist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "7. Create and delete N pvc (file + block)"
+      scenario:
+        OCP.pvc_create_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-pvc-create-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "8. Create and delete N pvc, pvc list in parallel (file + block)"
+      scenario:
+        OCP.pvc_create_pvclist_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-pvc-create-pvclist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "9. Create and delete N pvc, pv list in parallel (file + block)"
+      scenario:
+        OCP.pvc_create_pvlist_delete:
+          storage_classes:
+          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          name_prefix: 'rally-pvc-create-pvlist-delete'
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
+    -
+      title: "10. Create and delete N heketi volumes (file)"
+      scenario:
+        Heketi.volume_create_delete:
+          name_prefix: ""
+          volume_type: "file"
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "11. Create and delete N heketi volumes (block)"
+      scenario:
+        Heketi.volume_create_delete:
+          name_prefix: ""
+          volume_type: "file"
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "12. Create and delete N heketi volumes (file+block)"
+      scenario:
+        Heketi.volume_create_delete_file_and_block_volumes:
+          name_prefix: ""
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "13. Create and delete N heketi volumes (file), run heketi-volume list in parallel"
+      scenario:
+        Heketi.volume_create_list_delete:
+          name_prefix: ""
+          volume_type: "file"
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "14. Create and delete N heketi volumes (block), run heketi-volume list in parallel"
+      scenario:
+        Heketi.volume_create_list_delete:
+          name_prefix: ""
+          volume_type: "block"
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "15. Create and delete N heketi volumes with volume-prefix (file)"
+      scenario:
+        Heketi.volume_create_delete:
+          name_prefix: "rally"
+          volume_type: "file"
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "16. Create, expand and delete N heketi volumes (file)"
+      scenario:
+        Heketi.volume_create_expand_delete:
+          volume_type: "file"
+          name_prefix: ""
+          sleep_before_entension: 0.01
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "17. "
+      scenario:
+        Heketi.volume_create_expand_delete:
+          volume_type: "block"
+          name_prefix: "rally"
+          sleep_before_entension: 0.01
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "18. "
+      scenario:
+        Heketi.volume_create_delete:
+          name_prefix: "rally"
+          volume_type: "block"
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
