@@ -262,10 +262,10 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "17. "
+      title: "17. Create, expand and delete N heketi volumes with volume-prefix (file)"
       scenario:
         Heketi.volume_create_expand_delete:
-          volume_type: "block"
+          volume_type: "file"
           name_prefix: "rally"
           sleep_before_entension: 0.01
           sleep_before_deletion: 0.02
@@ -279,7 +279,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "18. "
+      title: "18. Create and delete N heketi volumes with volume-prefix (block) "
       scenario:
         Heketi.volume_create_delete:
           name_prefix: "rally"
