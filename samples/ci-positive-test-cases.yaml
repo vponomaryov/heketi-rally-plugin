@@ -294,3 +294,35 @@
           server: "{{ heketi_server_url }}"
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "19. Create N heketi file vols, get info, then delete"
+      scenario:
+        Heketi.volume_create_get_delete:
+          name_prefix: "rally"
+          volume_type: "file"
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
+    -
+      title: "20. Create N heketi block vols, get info, then delete"
+      scenario:
+        Heketi.volume_create_get_delete:
+          name_prefix: "rally"
+          volume_type: "block"
+          sleep_before_deletion: 0.02
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"
