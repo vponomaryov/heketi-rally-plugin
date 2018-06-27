@@ -3,7 +3,7 @@
   title: Set of scenarios to test an OCP deployment
   subtasks:
     -
-      title: "1. Create and delete N pvc (file)"
+      title: "pvc_create_delete_file"
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
@@ -19,7 +19,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "2. Create and delete N pvc, run pvc list in parallel (file)"
+      title: "pvc_create_pvclist_delete_file"
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
@@ -35,7 +35,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "3. Create and delete N pvc, run pv list in parallel (file)"
+      title: "pvc_create_pvlist_delete_file"
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
@@ -51,7 +51,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "4. Create and delete N pvc (block)"
+      title: "pvc_create_delete_block"
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
@@ -67,7 +67,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "5. Create and delete N pvc, run pvc list in parallel (block)"
+      title: "pvc_create_pvclist_delete_block"
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
@@ -83,7 +83,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "6. Create and delete N pvc, run pv list in parallel (block)"
+      title: "pvc_create_pvlist_delete_block"
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
@@ -99,7 +99,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "7. Create and delete N pvc (file + block)"
+      title: "pvc_create_delete_file_block"
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
@@ -116,7 +116,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "8. Create and delete N pvc, pvc list in parallel (file + block)"
+      title: "pvc_create_pvclist_delete_file_block"
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
@@ -133,7 +133,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "9. Create and delete N pvc, pv list in parallel (file + block)"
+      title: "pvc_create_pvlist_delete_file_block"
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
@@ -150,7 +150,7 @@
         ocp_client:
           config_path: "{{ ocp_config_path | default('~/.kube/config') }}"
     -
-      title: "10. Create and delete N heketi volumes (file)"
+      title: "volume_create_delete_file"
       scenario:
         Heketi.volume_create_delete:
           name_prefix: ""
@@ -166,7 +166,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "11. Create and delete N heketi volumes (block)"
+      title: "volume_create_delete_block"
       scenario:
         Heketi.volume_create_delete:
           name_prefix: ""
@@ -182,7 +182,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "12. Create and delete N heketi volumes (file+block)"
+      title: "volume_create_delete_file_and_block_volumes"
       scenario:
         Heketi.volume_create_delete_file_and_block_volumes:
           name_prefix: ""
@@ -197,7 +197,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "13. Create and delete N heketi volumes (file), run heketi-volume list in parallel"
+      title: "volume_create_list_delete_file"
       scenario:
         Heketi.volume_create_list_delete:
           name_prefix: ""
@@ -213,7 +213,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "14. Create and delete N heketi volumes (block), run heketi-volume list in parallel"
+      title: "volume_create_list_delete_block"
       scenario:
         Heketi.volume_create_list_delete:
           name_prefix: ""
@@ -229,7 +229,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "15. Create and delete N heketi volumes with volume-prefix (file)"
+      title: "volume_create_delete_volume_prefix_file"
       scenario:
         Heketi.volume_create_delete:
           name_prefix: "rally"
@@ -245,7 +245,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "16. Create, expand and delete N heketi volumes (file)"
+      title: "volume_create_expand_delete_file"
       scenario:
         Heketi.volume_create_expand_delete:
           volume_type: "file"
@@ -262,7 +262,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "17. Create, expand and delete N heketi volumes with volume-prefix (file)"
+      title: "volume_create_expand_delete_volume_prefix_file"
       scenario:
         Heketi.volume_create_expand_delete:
           volume_type: "file"
@@ -279,7 +279,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "18. Create and delete N heketi volumes with volume-prefix (block) "
+      title: "volume_create_delete_volume_prefix_block"
       scenario:
         Heketi.volume_create_delete:
           name_prefix: "rally"
@@ -295,7 +295,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "19. Create N heketi file vols, get info, then delete"
+      title: "volume_create_delete_get_info_file"
       scenario:
         Heketi.volume_create_get_delete:
           name_prefix: "rally"
@@ -311,7 +311,7 @@
           username: "{{ heketi_username | default('admin') }}"
           secret: "{{ heketi_secret | default('admin') }}"
     -
-      title: "20. Create N heketi block vols, get info, then delete"
+      title: "volume_create_delete_get_info_block"
       scenario:
         Heketi.volume_create_get_delete:
           name_prefix: "rally"
