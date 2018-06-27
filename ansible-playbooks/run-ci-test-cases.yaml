@@ -1,0 +1,56 @@
+---
+- hosts: localhost
+  gather_facts: no
+  tasks:
+  - name: List defined vars for debug reasons
+    debug:
+      msg: "{{ hostvars }}"
+  - name: Check that vars which are going to be calculated are not defined
+    fail:
+      msg: "This playbook expects only 'tests_config_path' var be provided."
+    when: "'master_ipv4' in hostvars['localhost'] or
+           'heketi_server_url' in hostvars['localhost'] or
+           'heketi_username' in hostvars['localhost'] or
+           'heketi_secret' in hostvars['localhost'] or
+           'ocp_config_path' in hostvars['localhost'] or
+           'venv_dir' in hostvars['localhost'] or
+           'cwd' in hostvars['localhost']"
+  - name: Read info about OCP cluster
+    command: "python -c \"import yaml ;
+        config = yaml.load(open('{{ tests_config_path }}', 'r'));
+        print(list(config['ocp_servers']['master'].keys())[0]);
+        print(config['cns']['heketi_config']['heketi_server_url']);
+        print(config['cns']['heketi_config']['heketi_cli_user']);
+        print(config['cns']['heketi_config']['heketi_cli_key'])\""
+    register: config_data
+  - name: Save config data to the host vars
+    set_fact:
+      master_ipv4: "{{ config_data.stdout_lines[0] }}"
+      heketi_server_url: "{{ config_data.stdout_lines[1] }}"
+      heketi_username: "{{ config_data.stdout_lines[2] }}"
+      heketi_secret: "{{ config_data.stdout_lines[3] }}"
+  - set_fact:
+      ocp_config_path: "/tmp/fetched/master_node_{{ master_ipv4 }}/kube_config"
+      venv_dir: "{{ lookup('env', 'VIRTUAL_ENV') }}"
+  - set_fact:
+      cwd: "{{ venv_dir }}/../.."
+  - name: Copy OCP kube config from OCP Master node to the localhost
+    fetch:
+      src: "~/.kube/config"
+      dest: "{{ hostvars['localhost'].ocp_config_path }}"
+      flat: true
+    delegate_to: "{{ master_ipv4 }}"
+  # TODO(vponomar): make task file be configurable.
+  - name: Run Rally CI test cases
+    command: "{{ venv_dir }}/bin/rally
+                --plugin-paths {{ cwd }}/heketi_rally_plugin
+                --log-file {{ cwd }}/rally.log
+                task start {{ cwd }}/samples/ci-positive-test-cases.yaml
+                --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},ocp_config_path={{ ocp_config_path }}"
+    register: rally_output
+  - name: Print Rally output
+    debug:
+      msg: "{{ rally_output }}"
