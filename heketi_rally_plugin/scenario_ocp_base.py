@@ -38,7 +38,11 @@ class OCPScenarioBase(scenario.Scenario):
         if name_prefix and name_prefix[-1] != '-':
             name_prefix += "-"
         name_prefix.replace('_', '-')
-        name = "%s%s" % (name_prefix, utils.get_random_str(14))
+        name = "%s%s" % (name_prefix, utils.get_random_str(8))
+        if len(name) > 63:
+            # TODO(vponomar): write and reuse custom exception
+            raise Exception(
+                "PVC's 'name' is allowed to be only 63 symbols long.")
 
         pvc_body = k_client.V1PersistentVolumeClaim(
             api_version="v1",
@@ -113,6 +117,10 @@ class OCPScenarioBase(scenario.Scenario):
              deletion_timeout=120.0, deletion_waiting_step=0.5,
              delete_pvc_if_failed=True,
              list_pvcs=False, list_pvs=False):
+        if len(name_prefix) > 55:
+            # TODO(vponomar): write and reuse custom exception
+            raise Exception(
+                "'name_prefix' is allowed to be only 55 symbols long.")
         if not isinstance(storage_classes, (list, tuple, set)):
             storage_classes = (storage_classes, )
         pvcs = []
