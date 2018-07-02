@@ -1,0 +1,34 @@
+---
+- name: List heketi nodes
+  # NOTE(vponomar): 'node list' cannot return data as json
+  shell: "heketi-cli node list
+                --server {{ heketi_server_url }}
+                --user {{ heketi_username }}
+                --secret {{ heketi_secret }} | awk '{print $1}'"
+  register: node_list
+
+- name: Get first node from heketi list
+  set_fact:
+    heketi_node_id: "{{ node_list.stdout_lines[0].split(':')[-1] }}"
+
+- name: DEBUG. Print chosen heketi node ID
+  debug:
+    msg: "{{ heketi_node_id }}"
+
+- name: Disable Heketi node
+  command: "heketi-cli
+               --server={{ heketi_server_url }}
+               --user={{ heketi_username | default('admin') }}
+               --secret={{ heketi_secret | default('admin') }}
+               node disable {{ heketi_node_id }}"
+
+- name: Sleep for some time before enabling heketi node
+  pause:
+    seconds: "{{ downtime_in_seconds | default(30) }}"
+
+- name: Enable Heketi node
+  command: "heketi-cli
+               --server={{ heketi_server_url }}
+               --user={{ heketi_username | default('admin') }}
+               --secret={{ heketi_secret | default('admin') }}
+               node enable {{ heketi_node_id }}"

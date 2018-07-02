@@ -1,0 +1,28 @@
+# List of required vars:
+# - 'volume_type' ('file' or 'block')
+# - 'title_suffix'
+# - 'heketi_server_url'
+#
+# List of optional vars:
+# - 'heketi_username'
+# - 'heketi_secret'
+---
+  version: 2
+  title: Scenario for running in CI as part of negative test suite
+  subtasks:
+    -
+      title: "volume_create_delete_{{ volume_type }}_{{ title_suffix }}"
+      scenario:
+        Heketi.volume_create_delete:
+          name_prefix: "rally-create-delete-volume_type"
+          volume_type: "{{ volume_type }}"
+          sleep_before_deletion: 0.01
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        heketi_client:
+          server: "{{ heketi_server_url }}"
+          username: "{{ heketi_username | default('admin') }}"
+          secret: "{{ heketi_secret | default('admin') }}"

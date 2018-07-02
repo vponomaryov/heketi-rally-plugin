@@ -1,0 +1,55 @@
+---
+# NOTE(vponomar): we simulate restart of 'glusterd' service by scaling up and
+# down amount of gluster pods. Run it from OCP client.
+
+- name: List gluster nodes
+  shell: "oc get nodes -l glusterfs=cns-host -o=custom-columns=:.metadata.name"
+  register: oc_nodes
+
+- name: Pick up one gluster node name
+  set_fact:
+    gluster_node_name: "{{ oc_nodes.stdout_lines[1] }}"
+
+- name: DEBUG. Print name of the chosen gluster node
+  debug:
+    msg: "{{ gluster_node_name }}"
+
+- name: Remove gluster label from gluster node to make its gluster pod be terminated
+  shell: "oc label nodes {{ gluster_node_name }} glusterfs-"
+
+- name: Sleep for some time before enabling 'glusterd' service
+  pause:
+    seconds: "{{ downtime_in_seconds | default(30) }}"
+
+- name: Add gluster label back to the gluster node to make its gluster pod be created
+  shell: "oc label nodes {{ gluster_node_name }} glusterfs=cns-host"
+
+# Output is following:
+# NAMESPACE NAME                 READY STATUS  RESTARTS AGE IP   NODE
+# cns       glusterfs-cns-45cdv  1/1   Running 0        1d  <ip> <node-name>
+- name: Define command for getting gluster POD for chosen node
+  set_fact:
+    get_gluster_pod_cmd: "oc get pods --all-namespaces -l glusterfs-node=pod
+        --field-selector spec.nodeName={{ gluster_node_name }} -o wide"
+
+- name: Get gluster POD for chosen node
+  command: "{{ get_gluster_pod_cmd }}"
+  register: debug_node_pod
+
+- name: DEBUG. Print output for executed command.
+  debug:
+    msg: "{{ debug_node_pod }}"
+
+- name: Wait for gluster POD be up and running on chosen node
+  command: "{{ get_gluster_pod_cmd }}"
+  register: node_pod
+  until:
+  - node_pod.stderr | trim == ""
+  - node_pod.stdout | trim != ""
+  - node_pod.stdout_lines | length > 0
+  - (node_pod.stdout_lines[1].split(" ") | difference(['']) | list | length) > 3
+  - (node_pod.stdout_lines[1].split(" ") | difference(['']))[2] == "1/1"
+  - (node_pod.stdout_lines[1].split(" ") | difference(['']))[3] == "Running"
+  retries: 60
+  delay: 5
+  changed_when: false

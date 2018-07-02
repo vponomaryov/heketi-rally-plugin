@@ -1,0 +1,13 @@
+# Required vars:
+# - 'ansible_job_id'
+---
+  - name: "Check status of async job and print output when finished"
+    async_status:
+      jid: "{{ ansible_job_id }}"
+    register: async_poll_results
+    until: async_poll_results.finished
+    retries: 30
+    ignore_errors: true
+  - name: "Print async job results"
+    debug:
+      msg: "{{ async_poll_results.stdout_lines }}"
