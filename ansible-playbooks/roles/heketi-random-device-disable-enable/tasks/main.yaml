@@ -1,0 +1,43 @@
+---
+- name: List heketi nodes
+  # NOTE(vponomar): 'node list' cannot return data as json
+  shell: "heketi-cli node list
+                --server {{ heketi_server_url }}
+                --user {{ heketi_username }}
+                --secret {{ heketi_secret }} | awk '{print $1}'"
+  register: heketi_node_list
+
+- name: Get first node from heketi list
+  set_fact:
+    heketi_node_id: "{{ heketi_node_list.stdout_lines[0].split(':')[-1] }}"
+
+- name: Get node info to list available device IDs
+  command: "heketi-cli node info {{ heketi_node_id }}
+                --json
+                --server {{ heketi_server_url }}
+                --user {{ heketi_username }}
+                --secret {{ heketi_secret }}"
+  register: heketi_device_list
+
+- name: Get first device from device list
+  set_fact:
+    heketi_device_id: "{{ heketi_device_list.stdout_lines[0] |
+                              from_json | json_query('devices[0].id') }}"
+
+- name: Disable Heketi device
+  command: "heketi-cli
+               --server={{ heketi_server_url }}
+               --user={{ heketi_username }}
+               --secret={{ heketi_secret }}
+               device disable {{ heketi_device_id }}"
+
+- name: Sleep for some time before enabling heketi device
+  pause:
+    seconds: "{{ downtime_in_seconds | default(30) }}"
+
+- name: Enable Heketi device
+  command: "heketi-cli
+               --server={{ heketi_server_url }}
+               --user={{ heketi_username }}
+               --secret={{ heketi_secret }}
+               device enable {{ heketi_device_id }}"

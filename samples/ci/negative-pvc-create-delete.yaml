@@ -1,0 +1,30 @@
+# List of required vars:
+# - 'volume_type' ('file' or 'block')
+# - 'title_suffix'
+#
+# List of optional vars:
+# - 'ocp_config_path'
+# - 'ocp_file_sc'
+# - 'ocp_block_sc'
+---
+  version: 2
+  title: Scenario for running in CI as part of negative test suite
+  subtasks:
+    -
+      title: "pvc_create_delete_{{ volume_type }}_{{ title_suffix }}"
+      scenario:
+        OCP.pvc_create_delete:
+          name_prefix: "rally-pvc-create-delete-{{ volume_type }}"
+          storage_classes:
+          - "{% if volume_type == 'file'
+             %}(ocp_file_sc | default('glusterfs-cns')){% else
+             %}(ocp_block_sc | default('glusterfs-cns-block')){% endif %}"
+          creation_waiting_step: 1.7
+          deletion_waiting_step: 1.5
+      runner:
+        constant:
+          times: 2
+          concurrency: 2
+      contexts:
+        ocp_client:
+          config_path: "{{ ocp_config_path | default('~/.kube/config') }}"

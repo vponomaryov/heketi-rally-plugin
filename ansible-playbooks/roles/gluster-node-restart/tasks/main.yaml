@@ -1,0 +1,30 @@
+# NOTE(vponomar): run it from OCP client node
+---
+- name: List gluster nodes
+  shell: "oc get nodes -l glusterfs=cns-host -o=custom-columns=:.metadata.name"
+  register: oc_nodes
+
+- name: Pick up one gluster node name
+  set_fact:
+    gluster_node_name: "{{ oc_nodes.stdout_lines[1] }}"
+
+- name: DEBUG. Print name of the chosen gluster node
+  debug:
+    msg: "{{ gluster_node_name }}"
+
+- name: Restart one of gluster nodes
+  shell: "sleep 3 ; /sbin/shutdown -r now 'Reboot triggered by Ansible'"
+  delegate_to: "{{ gluster_node_name }}"
+  async: 1
+  poll: 0
+  ignore_errors: true
+
+- name: Wait for Gluster node to go down and then up
+  wait_for:
+    host: "{{ gluster_node_name }}"
+    port: 22
+    delay: 10
+    timeout: 180
+    connect_timeout: 15
+    state: "{{ item }}"
+  with_items: ['stopped', 'started']
