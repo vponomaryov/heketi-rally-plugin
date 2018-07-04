@@ -1,10 +1,35 @@
+# Specify
+# 'run_positive_test_cases=false' var to disable positive Rally test cases
+# 'run_negative_heketi_device_disable_test_cases=false' var to disable negative
+#     Rally test cases where heketi device get disabled and then enabled.
+# 'run_negative_heketi_node_disable_test_cases=false' var to disable negative
+#     Rally test cases where heketi node get disabled and then enabled.
+# 'run_negative_reboot_glusterd_service_test_cases=false' to disable negative
+#     Rally test cases where one of 'glusterd' services gets restarted.
+# 'run_negative_reboot_gluster_node_test_cases=false' to disable negative
+#     Rally test cases where one of Gluster nodes gets rebooted.
 ---
 - hosts: localhost
   gather_facts: yes
+  vars:
+    run_positive_test_cases: true
+    run_negative_heketi_device_disable_test_cases: true
+    run_negative_heketi_node_disable_test_cases: true
+    run_negative_reboot_glusterd_service_test_cases: true
+    run_negative_reboot_gluster_node_test_cases: true
   tasks:
   - name: List defined vars for debug reasons
     debug:
       msg: "{{ hostvars }}"
+  - name: Check that not all tests are disabled
+    fail:
+      msg: "All tests are disabled, please, enable, at least, one test group."
+    when:
+    - not (run_positive_test_cases | bool)
+    - not (run_negative_heketi_device_disable_test_cases | bool)
+    - not (run_negative_heketi_node_disable_test_cases | bool)
+    - not (run_negative_reboot_glusterd_service_test_cases | bool)
+    - not (run_negative_reboot_gluster_node_test_cases | bool)
   - name: Check that vars which are going to be calculated are not defined
     fail:
       msg: "This playbook expects only 'tests_config_path' var be provided."
@@ -45,325 +70,336 @@
       rally_task_tag: "rally-{{ ansible_date_time.iso8601_basic_short }}"
 
   # --- Run positive test cases ---
-  - name: Run Rally positive CI test cases
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci-positive-test-cases.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},ocp_config_path={{ ocp_config_path }}"
-    register: rally_positive_output
-    ignore_errors: true
-  - name: Print Rally output for positive test cases
-    debug:
-      msg: "{{ rally_positive_output }}"
+  - name: Run positive Rally test cases
+    block:
+    - name: Run Rally positive CI test cases
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci-positive-test-cases.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},ocp_config_path={{ ocp_config_path }}"
+      register: rally_positive_output
+      ignore_errors: true
+    - name: Print Rally output for positive test cases
+      debug:
+        msg: "{{ rally_positive_output }}"
+    when: not not (run_positive_test_cases | bool)
 
   # --- Run negative test cases ---
-  # Run 4 cases for heketi device disable
-  - name: "Run negative Rally test case #1 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_1_async
-    ignore_errors: true
+  - name: "Run negative test cases disabling one of heketi devices"
+    block:
+    - name: "Run negative Rally test case #1 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_1_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #5 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_5_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #9 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_9_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #13 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_13_async
+      ignore_errors: true
 
-  - name: "Run negative Rally test case #5 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_5_async
-    ignore_errors: true
+    - name: "Disable and enable Heketi device in parallel for Rally test case"
+      import_role:
+        name: heketi-random-device-disable-enable
+      vars:
+        heketi_server_url: "{{ heketi_server_url }}"
+        heketi_user: "{{ heketi_username }}"
+        heketi_secret: "{{ heketi_secret }}"
+        downtime_in_seconds: 10
+      delegate_to: "{{ master_ipv4 }}"
+      delegate_facts: false
+  
+    - name: "Check async status of negative Rally test cases #1,5,9,13"
+      include_role: name='check-async-job-status'
+      vars:
+        ansible_job_id: "{{ item }}"
+      with_items:
+      - "{{ rally_1_async.ansible_job_id }}"
+      - "{{ rally_5_async.ansible_job_id }}"
+      - "{{ rally_9_async.ansible_job_id }}"
+      - "{{ rally_13_async.ansible_job_id }}"
+    when: not not (run_negative_heketi_device_disable_test_cases | bool)
 
-  - name: "Run negative Rally test case #9 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_9_async
-    ignore_errors: true
+  - name: "Run negative test cases disabling one of heketi nodes"
+    block:
+    - name: "Run negative Rally test case #2 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_2_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #6 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_6_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #10 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_10_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #14 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_14_async
+      ignore_errors: true
 
-  - name: "Run negative Rally test case #13 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_13_async
-    ignore_errors: true
+    - name: "Disable and enable Heketi node in parallel for Rally test case"
+      import_role:
+        name: heketi-random-node-disable-enable
+      vars:
+        heketi_server_url: "{{ heketi_server_url }}"
+        heketi_user: "{{ heketi_username }}"
+        heketi_secret: "{{ heketi_secret }}"
+        downtime_in_seconds: 10
+      delegate_to: "{{ master_ipv4 }}"
+      delegate_facts: false
+  
+    - name: "Check async status of negative Rally test cases #2,6,10,14"
+      include_role: name='check-async-job-status'
+      vars:
+        ansible_job_id: "{{ item }}"
+      with_items:
+      - "{{ rally_2_async.ansible_job_id }}"
+      - "{{ rally_6_async.ansible_job_id }}"
+      - "{{ rally_10_async.ansible_job_id }}"
+      - "{{ rally_14_async.ansible_job_id }}"
+    when: not not (run_negative_heketi_node_disable_test_cases | bool)
 
-  - name: "Disable and enable Heketi device in parallel for Rally test case"
-    import_role:
-      name: heketi-random-device-disable-enable
-    vars:
-      heketi_server_url: "{{ heketi_server_url }}"
-      heketi_user: "{{ heketi_username }}"
-      heketi_secret: "{{ heketi_secret }}"
-      downtime_in_seconds: 10
-    delegate_to: "{{ master_ipv4 }}"
-    delegate_facts: false
+  - name: "Run negative test cases restarting one of 'glusterd' services"
+    block:
+    - name: "Run negative Rally test case #3 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_3_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #7 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_7_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #11 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_11_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #15 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_15_async
+      ignore_errors: true
 
-  - name: "Check async status of negative Rally test cases #1,5,9,13"
-    include_role: name='check-async-job-status'
-    vars:
-      ansible_job_id: "{{ item }}"
-    with_items:
-    - "{{ rally_1_async.ansible_job_id }}"
-    - "{{ rally_5_async.ansible_job_id }}"
-    - "{{ rally_9_async.ansible_job_id }}"
-    - "{{ rally_13_async.ansible_job_id }}"
+    - name: Restart glusterd service in one of the gluster PODs
+      import_role:
+        name: glusterd-restart
+      vars:
+        downtime_in_seconds: 10
+      delegate_to: "{{ master_ipv4 }}"
+      delegate_facts: false
+  
+    - name: "Check async status of negative Rally test cases #3,7,11,15"
+      include_role: name='check-async-job-status'
+      vars:
+        ansible_job_id: "{{ item }}"
+      with_items:
+      - "{{ rally_3_async.ansible_job_id }}"
+      - "{{ rally_7_async.ansible_job_id }}"
+      - "{{ rally_11_async.ansible_job_id }}"
+      - "{{ rally_15_async.ansible_job_id }}"
+    when: not not (run_negative_reboot_glusterd_service_test_cases | bool)
 
-  # Run 4 cases for heketi node disable
-  - name: "Run negative Rally test case #2 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_2_async
-    ignore_errors: true
+  - name: "Run negative test cases restarting one of 'Gluster' nodes"
+    block:
+    - name: "Run negative Rally test case #4 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_4_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #8 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args ocp_config_path={{ ocp_config_path 
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_8_async
+      ignore_errors: true
 
-  - name: "Run negative Rally test case #6 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_6_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #10 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_10_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #14 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_14_async
-    ignore_errors: true
-
-  - name: "Disable and enable Heketi node in parallel for Rally test case"
-    import_role:
-      name: heketi-random-node-disable-enable
-    vars:
-      heketi_server_url: "{{ heketi_server_url }}"
-      heketi_user: "{{ heketi_username }}"
-      heketi_secret: "{{ heketi_secret }}"
-      downtime_in_seconds: 10
-    delegate_to: "{{ master_ipv4 }}"
-    delegate_facts: false
-
-  - name: "Check async status of negative Rally test cases #2,6,10,14"
-    include_role: name='check-async-job-status'
-    vars:
-      ansible_job_id: "{{ item }}"
-    with_items:
-    - "{{ rally_2_async.ansible_job_id }}"
-    - "{{ rally_6_async.ansible_job_id }}"
-    - "{{ rally_10_async.ansible_job_id }}"
-    - "{{ rally_14_async.ansible_job_id }}"
-
-  # Run 4 cases for glusterd restart
-  - name: "Run negative Rally test case #3 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_3_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #7 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_7_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #11 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_11_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #15 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_15_async
-    ignore_errors: true
-
-  - name: Restart glusterd service in one of the gluster PODs
-    import_role:
-      name: glusterd-restart
-    vars:
-      downtime_in_seconds: 10
-    delegate_to: "{{ master_ipv4 }}"
-    delegate_facts: false
-
-  - name: "Check async status of negative Rally test cases #3,7,11,15"
-    include_role: name='check-async-job-status'
-    vars:
-      ansible_job_id: "{{ item }}"
-    with_items:
-    - "{{ rally_3_async.ansible_job_id }}"
-    - "{{ rally_7_async.ansible_job_id }}"
-    - "{{ rally_11_async.ansible_job_id }}"
-    - "{{ rally_15_async.ansible_job_id }}"
-
-  # Run 4 cassses for gluster node restart
-  - name: "Run negative Rally test case #4 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_4_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #8 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args ocp_config_path={{ ocp_config_path 
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_8_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #12 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='file'"
-    async: 300
-    poll: 0
-    register: rally_12_async
-    ignore_errors: true
-
-  - name: "Run negative Rally test case #16 in background"
-    command: "{{ venv_dir }}/bin/rally
-                --plugin-paths {{ cwd }}/heketi_rally_plugin
-                --log-file {{ cwd }}/rally.log
-                task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
-                --tag {{ rally_task_tag }}
-                --task-args heketi_server_url={{ heketi_server_url
-                  }},heketi_username={{ heketi_username
-                  }},heketi_secret={{ heketi_secret
-                  }},title_suffix='heketi_device_disable',volume_type='block'"
-    async: 300
-    poll: 0
-    register: rally_16_async
-    ignore_errors: true
-
-  - name: Restart gluster node
-    import_role:
-      name: gluster-node-restart
-    delegate_to: "{{ master_ipv4 }}"
-
-  - name: "Check async status of negative Rally test cases #4,8,12,16"
-    include_role: name='check-async-job-status'
-    vars:
-      ansible_job_id: "{{ item }}"
-    with_items:
-    - "{{ rally_4_async.ansible_job_id }}"
-    - "{{ rally_8_async.ansible_job_id }}"
-    - "{{ rally_12_async.ansible_job_id }}"
-    - "{{ rally_16_async.ansible_job_id }}"
+    - name: "Run negative Rally test case #12 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='file'"
+      async: 300
+      poll: 0
+      register: rally_12_async
+      ignore_errors: true
+  
+    - name: "Run negative Rally test case #16 in background"
+      command: "{{ venv_dir }}/bin/rally
+                  --plugin-paths {{ cwd }}/heketi_rally_plugin
+                  --log-file {{ cwd }}/rally.log
+                  task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
+                  --tag {{ rally_task_tag }}
+                  --task-args heketi_server_url={{ heketi_server_url
+                    }},heketi_username={{ heketi_username
+                    }},heketi_secret={{ heketi_secret
+                    }},title_suffix='heketi_device_disable',volume_type='block'"
+      async: 300
+      poll: 0
+      register: rally_16_async
+      ignore_errors: true
+  
+    - name: Restart gluster node
+      import_role:
+        name: gluster-node-restart
+      delegate_to: "{{ master_ipv4 }}"
+  
+    - name: "Check async status of negative Rally test cases #4,8,12,16"
+      include_role: name='check-async-job-status'
+      vars:
+        ansible_job_id: "{{ item }}"
+      with_items:
+      - "{{ rally_4_async.ansible_job_id }}"
+      - "{{ rally_8_async.ansible_job_id }}"
+      - "{{ rally_12_async.ansible_job_id }}"
+      - "{{ rally_16_async.ansible_job_id }}"
+    when: not not (run_negative_reboot_gluster_node_test_cases | bool)
 
   # --- Generate Rally test run report ---
   - name: "Get list of task UUIDs by our special tag"
