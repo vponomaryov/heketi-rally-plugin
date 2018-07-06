@@ -68,6 +68,15 @@
   - name: Create tag  for rally tasks to use for report generation
     set_fact:
       rally_task_tag: "rally-{{ ansible_date_time.iso8601_basic_short }}"
+  - name: Define name for Rally log file
+    set_fact:
+      rally_log_file: "{{ cwd }}/{{ rally_task_tag }}.log"
+  - name: Create Rally log file
+    copy:
+      dest: "{{ rally_log_file }}"
+      content: ""
+      force: no
+      mode: 0664
 
   # --- Run positive test cases ---
   - name: Run positive Rally test cases
@@ -75,7 +84,7 @@
     - name: Run Rally positive CI test cases
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci-positive-test-cases.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -95,7 +104,7 @@
     - name: "Run negative Rally test case #1 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -108,7 +117,7 @@
     - name: "Run negative Rally test case #5 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -121,7 +130,7 @@
     - name: "Run negative Rally test case #9 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -136,7 +145,7 @@
     - name: "Run negative Rally test case #13 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -175,7 +184,7 @@
     - name: "Run negative Rally test case #2 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -188,7 +197,7 @@
     - name: "Run negative Rally test case #6 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -201,7 +210,7 @@
     - name: "Run negative Rally test case #10 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -216,7 +225,7 @@
     - name: "Run negative Rally test case #14 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -255,7 +264,7 @@
     - name: "Run negative Rally test case #3 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -268,7 +277,7 @@
     - name: "Run negative Rally test case #7 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -281,7 +290,7 @@
     - name: "Run negative Rally test case #11 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -296,7 +305,7 @@
     - name: "Run negative Rally test case #15 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -332,7 +341,7 @@
     - name: "Run negative Rally test case #4 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -345,7 +354,7 @@
     - name: "Run negative Rally test case #8 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
@@ -358,7 +367,7 @@
     - name: "Run negative Rally test case #12 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -373,7 +382,7 @@
     - name: "Run negative Rally test case #16 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
-                  --log-file {{ cwd }}/rally.log
+                  --log-file {{ rally_log_file }}
                   task start {{ cwd }}/samples/ci/negative-heketi-volume-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
@@ -405,7 +414,7 @@
   - name: "Get list of task UUIDs by our special tag"
     shell: "{{ venv_dir }}/bin/rally
                  --plugin-paths {{ cwd }}/heketi_rally_plugin
-                 --log-file {{ cwd }}/rally.log
+                 --log-file {{ rally_log_file }}
                  task list --tag {{ rally_task_tag }} | grep {{
                     rally_task_tag }} | awk '{print $2}'"
     register: task_list_raw
@@ -420,7 +429,7 @@
   - name: "Generate rally report for all the tasks which have our special tag"
     command: "{{ venv_dir }}/bin/rally
                  --plugin-paths {{ cwd }}/heketi_rally_plugin
-                 --log-file {{ cwd }}/rally.log
+                 --log-file {{ rally_log_file }}
                  task export --uuid {{ task_uuids }}
                  --type junit-xml-single-testsuite --to {{ report_path }}"
   - name: "Print information about generated Rally test run report"
