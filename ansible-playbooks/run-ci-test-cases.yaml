@@ -85,7 +85,7 @@
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
                   --log-file {{ rally_log_file }}
-                  task start {{ cwd }}/samples/ci-positive-test-cases.yaml
+                  task start {{ cwd }}/samples/ci/positive-test-cases.yaml
                   --tag {{ rally_task_tag }}
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
