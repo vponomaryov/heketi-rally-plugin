@@ -4,7 +4,7 @@
 #     Rally test cases where heketi device get disabled and then enabled.
 # 'run_negative_heketi_node_disable_test_cases=false' var to disable negative
 #     Rally test cases where heketi node get disabled and then enabled.
-# 'run_negative_reboot_glusterd_service_test_cases=false' to disable negative
+# 'run_negative_restart_glusterd_service_test_cases=false' to disable negative
 #     Rally test cases where one of 'glusterd' services gets restarted.
 # 'run_negative_reboot_gluster_node_test_cases=false' to disable negative
 #     Rally test cases where one of Gluster nodes gets rebooted.
@@ -15,7 +15,7 @@
     run_positive_test_cases: true
     run_negative_heketi_device_disable_test_cases: true
     run_negative_heketi_node_disable_test_cases: true
-    run_negative_reboot_glusterd_service_test_cases: true
+    run_negative_restart_glusterd_service_test_cases: true
     run_negative_reboot_gluster_node_test_cases: true
   tasks:
   - name: List defined vars for debug reasons
@@ -28,7 +28,7 @@
     - not (run_positive_test_cases | bool)
     - not (run_negative_heketi_device_disable_test_cases | bool)
     - not (run_negative_heketi_node_disable_test_cases | bool)
-    - not (run_negative_reboot_glusterd_service_test_cases | bool)
+    - not (run_negative_restart_glusterd_service_test_cases | bool)
     - not (run_negative_reboot_gluster_node_test_cases | bool)
   - name: Check that vars which are going to be calculated are not defined
     fail:
@@ -188,7 +188,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='heketi_node_disable',volume_type='file'"
       async: 300
       poll: 0
       register: rally_2_async
@@ -201,7 +201,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='heketi_node_disable',volume_type='block'"
       async: 300
       poll: 0
       register: rally_6_async
@@ -216,7 +216,7 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='heketi_node_disable',volume_type='file'"
       async: 300
       poll: 0
       register: rally_10_async
@@ -231,7 +231,7 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='heketi_node_disable',volume_type='block'"
       async: 300
       poll: 0
       register: rally_14_async
@@ -268,7 +268,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='glusterd_restart',volume_type='file'"
       async: 300
       poll: 0
       register: rally_3_async
@@ -281,7 +281,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='glusterd_restart',volume_type='block'"
       async: 300
       poll: 0
       register: rally_7_async
@@ -296,7 +296,7 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='glusterd_restart',volume_type='file'"
       async: 300
       poll: 0
       register: rally_11_async
@@ -311,7 +311,7 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='glusterd_restart',volume_type='block'"
       async: 300
       poll: 0
       register: rally_15_async
@@ -334,7 +334,7 @@
       - "{{ rally_7_async.ansible_job_id }}"
       - "{{ rally_11_async.ansible_job_id }}"
       - "{{ rally_15_async.ansible_job_id }}"
-    when: not not (run_negative_reboot_glusterd_service_test_cases | bool)
+    when: not not (run_negative_restart_glusterd_service_test_cases | bool)
 
   - name: "Run negative test cases restarting one of 'Gluster' nodes"
     block:
@@ -345,7 +345,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='reboot_gluster_node',volume_type='file'"
       async: 300
       poll: 0
       register: rally_4_async
@@ -358,7 +358,7 @@
                   task start {{ cwd }}/samples/ci/negative-pvc-create-delete.yaml
                   --tag {{ rally_task_tag }}
                   --task-args ocp_config_path={{ ocp_config_path 
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='reboot_gluster_node',volume_type='block'"
       async: 300
       poll: 0
       register: rally_8_async
@@ -373,7 +373,7 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='file'"
+                    }},title_suffix='reboot_gluster_node',volume_type='file'"
       async: 300
       poll: 0
       register: rally_12_async
@@ -388,15 +388,15 @@
                   --task-args heketi_server_url={{ heketi_server_url
                     }},heketi_username={{ heketi_username
                     }},heketi_secret={{ heketi_secret
-                    }},title_suffix='heketi_device_disable',volume_type='block'"
+                    }},title_suffix='reboot_gluster_node',volume_type='block'"
       async: 300
       poll: 0
       register: rally_16_async
       ignore_errors: true
   
-    - name: Restart gluster node
+    - name: Reboot gluster node
       import_role:
-        name: gluster-node-restart
+        name: gluster-node-reboot
       delegate_to: "{{ master_ipv4 }}"
   
     - name: "Check async status of negative Rally test cases #4,8,12,16"
