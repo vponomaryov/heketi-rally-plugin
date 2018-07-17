@@ -78,6 +78,10 @@
       force: no
       mode: 0664
 
+  - name: Define boolean var for tracking failure injection healthiness
+    set_fact:
+      stop_playbook_execution: false
+
   # --- Run positive test cases ---
   - name: Run positive Rally test cases
     block:
@@ -157,27 +161,35 @@
       register: rally_13_async
       ignore_errors: true
 
-    - name: "Disable and enable Heketi device in parallel for Rally test case"
-      import_role:
-        name: heketi-random-device-disable-enable
-      vars:
-        heketi_server_url: "{{ heketi_server_url }}"
-        heketi_user: "{{ heketi_username }}"
-        heketi_secret: "{{ heketi_secret }}"
-        downtime_in_seconds: 10
-      delegate_to: "{{ master_ipv4 }}"
-      delegate_facts: false
-  
-    - name: "Check async status of negative Rally test cases #1,5,9,13"
-      include_role: name='check-async-job-status'
-      vars:
-        ansible_job_id: "{{ item }}"
-      with_items:
-      - "{{ rally_1_async.ansible_job_id }}"
-      - "{{ rally_5_async.ansible_job_id }}"
-      - "{{ rally_9_async.ansible_job_id }}"
-      - "{{ rally_13_async.ansible_job_id }}"
-    when: not not (run_negative_heketi_device_disable_test_cases | bool)
+    - block:
+      - name: "Disable and enable Heketi device in parallel for Rally test case"
+        import_role:
+          name: heketi-random-device-disable-enable
+        vars:
+          heketi_server_url: "{{ heketi_server_url }}"
+          heketi_user: "{{ heketi_username }}"
+          heketi_secret: "{{ heketi_secret }}"
+          downtime_in_seconds: 10
+        delegate_to: "{{ master_ipv4 }}"
+        delegate_facts: false
+      rescue:
+      - set_fact:
+          current_block_failed: True
+      always:
+      - name: "Check async status of negative Rally test cases #1,5,9,13"
+        include_role: name='check-async-job-status'
+        vars:
+          ansible_job_id: "{{ item }}"
+        with_items:
+        - "{{ rally_1_async.ansible_job_id }}"
+        - "{{ rally_5_async.ansible_job_id }}"
+        - "{{ rally_9_async.ansible_job_id }}"
+        - "{{ rally_13_async.ansible_job_id }}"
+    - set_fact:
+        stop_playbook_execution: "{{ current_block_failed is defined }}"
+    when:
+    - not not (run_negative_heketi_device_disable_test_cases | bool)
+    - not stop_playbook_execution
 
   - name: "Run negative test cases disabling one of heketi nodes"
     block:
@@ -237,27 +249,35 @@
       register: rally_14_async
       ignore_errors: true
 
-    - name: "Disable and enable Heketi node in parallel for Rally test case"
-      import_role:
-        name: heketi-random-node-disable-enable
-      vars:
-        heketi_server_url: "{{ heketi_server_url }}"
-        heketi_user: "{{ heketi_username }}"
-        heketi_secret: "{{ heketi_secret }}"
-        downtime_in_seconds: 10
-      delegate_to: "{{ master_ipv4 }}"
-      delegate_facts: false
-  
-    - name: "Check async status of negative Rally test cases #2,6,10,14"
-      include_role: name='check-async-job-status'
-      vars:
-        ansible_job_id: "{{ item }}"
-      with_items:
-      - "{{ rally_2_async.ansible_job_id }}"
-      - "{{ rally_6_async.ansible_job_id }}"
-      - "{{ rally_10_async.ansible_job_id }}"
-      - "{{ rally_14_async.ansible_job_id }}"
-    when: not not (run_negative_heketi_node_disable_test_cases | bool)
+    - block:
+      - name: "Disable and enable Heketi node in parallel for Rally test case"
+        import_role:
+          name: heketi-random-node-disable-enable
+        vars:
+          heketi_server_url: "{{ heketi_server_url }}"
+          heketi_user: "{{ heketi_username }}"
+          heketi_secret: "{{ heketi_secret }}"
+          downtime_in_seconds: 10
+        delegate_to: "{{ master_ipv4 }}"
+        delegate_facts: false
+      rescue:
+      - set_fact:
+          current_block_failed: True
+      always:
+      - name: "Check async status of negative Rally test cases #2,6,10,14"
+        include_role: name='check-async-job-status'
+        vars:
+          ansible_job_id: "{{ item }}"
+        with_items:
+        - "{{ rally_2_async.ansible_job_id }}"
+        - "{{ rally_6_async.ansible_job_id }}"
+        - "{{ rally_10_async.ansible_job_id }}"
+        - "{{ rally_14_async.ansible_job_id }}"
+    - set_fact:
+        stop_playbook_execution: "{{ current_block_failed is defined }}"
+    when:
+    - not not (run_negative_heketi_node_disable_test_cases | bool)
+    - not stop_playbook_execution
 
   - name: "Run negative test cases restarting one of 'glusterd' services"
     block:
@@ -317,24 +337,32 @@
       register: rally_15_async
       ignore_errors: true
 
-    - name: Restart glusterd service in one of the gluster PODs
-      import_role:
-        name: glusterd-restart
-      vars:
-        downtime_in_seconds: 10
-      delegate_to: "{{ master_ipv4 }}"
-      delegate_facts: false
-  
-    - name: "Check async status of negative Rally test cases #3,7,11,15"
-      include_role: name='check-async-job-status'
-      vars:
-        ansible_job_id: "{{ item }}"
-      with_items:
-      - "{{ rally_3_async.ansible_job_id }}"
-      - "{{ rally_7_async.ansible_job_id }}"
-      - "{{ rally_11_async.ansible_job_id }}"
-      - "{{ rally_15_async.ansible_job_id }}"
-    when: not not (run_negative_restart_glusterd_service_test_cases | bool)
+    - block:
+      - name: Restart glusterd service in one of the gluster PODs
+        import_role:
+          name: glusterd-restart
+        vars:
+          downtime_in_seconds: 10
+        delegate_to: "{{ master_ipv4 }}"
+        delegate_facts: false
+      rescue:
+      - set_fact:
+          current_block_failed: True
+      always:
+      - name: "Check async status of negative Rally test cases #3,7,11,15"
+        include_role: name='check-async-job-status'
+        vars:
+          ansible_job_id: "{{ item }}"
+        with_items:
+        - "{{ rally_3_async.ansible_job_id }}"
+        - "{{ rally_7_async.ansible_job_id }}"
+        - "{{ rally_11_async.ansible_job_id }}"
+        - "{{ rally_15_async.ansible_job_id }}"
+    - set_fact:
+        stop_playbook_execution: "{{ current_block_failed is defined }}"
+    when:
+    - not not (run_negative_restart_glusterd_service_test_cases | bool)
+    - not stop_playbook_execution
 
   - name: "Run negative test cases restarting one of 'Gluster' nodes"
     block:
@@ -378,7 +406,7 @@
       poll: 0
       register: rally_12_async
       ignore_errors: true
-  
+
     - name: "Run negative Rally test case #16 in background"
       command: "{{ venv_dir }}/bin/rally
                   --plugin-paths {{ cwd }}/heketi_rally_plugin
@@ -394,21 +422,29 @@
       register: rally_16_async
       ignore_errors: true
   
-    - name: Reboot gluster node
-      import_role:
-        name: gluster-node-reboot
-      delegate_to: "{{ master_ipv4 }}"
-  
-    - name: "Check async status of negative Rally test cases #4,8,12,16"
-      include_role: name='check-async-job-status'
-      vars:
-        ansible_job_id: "{{ item }}"
-      with_items:
-      - "{{ rally_4_async.ansible_job_id }}"
-      - "{{ rally_8_async.ansible_job_id }}"
-      - "{{ rally_12_async.ansible_job_id }}"
-      - "{{ rally_16_async.ansible_job_id }}"
-    when: not not (run_negative_reboot_gluster_node_test_cases | bool)
+    - block:  
+      - name: Reboot gluster node
+        import_role:
+          name: gluster-node-reboot
+        delegate_to: "{{ master_ipv4 }}"
+      rescue:
+      - set_fact:
+          current_block_failed: True
+      always:
+      - name: "Check async status of negative Rally test cases #4,8,12,16"
+        include_role: name='check-async-job-status'
+        vars:
+          ansible_job_id: "{{ item }}"
+        with_items:
+        - "{{ rally_4_async.ansible_job_id }}"
+        - "{{ rally_8_async.ansible_job_id }}"
+        - "{{ rally_12_async.ansible_job_id }}"
+        - "{{ rally_16_async.ansible_job_id }}"
+    - set_fact:
+        stop_playbook_execution: "{{ current_block_failed is defined }}"
+    when:
+    - not not (run_negative_reboot_gluster_node_test_cases | bool)
+    - not stop_playbook_execution
 
   # --- Generate Rally test run report ---
   - name: "Get list of task UUIDs by our special tag"
@@ -436,3 +472,10 @@
     debug:
       msg: "INFO. Generated test run report in 'junit-xml' format. Saved in '{{
                 report_path }}' file."
+
+  # --- Fail playbook if some of the failure injections failed ---
+  - name: Check whether we have failed failure injections or not
+    fail:
+      msg: "Some of failure injections have failed. Hence, marking playbook
+            as 'failed' too."
+    when: stop_playbook_execution
