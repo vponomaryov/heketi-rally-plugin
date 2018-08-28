@@ -1,7 +1,11 @@
+from rally.common import logging
 from rally.task import atomic
 from rally.task import scenario
 
 from heketi_rally_plugin import utils
+
+
+LOG = logging.getLogger(__name__)
 
 
 class HeketiScenarioBase(scenario.Scenario):
@@ -17,10 +21,13 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of a volume to be created.
         """
-        return getattr(
-            self.context["heketi_client"],
-            "%svolume_create" % ("" if volume_type == "file" else "block"))(
+        method = "%svolume_create" % ("" if volume_type == "file" else "block")
+        try:
+            return getattr(self.context["heketi_client"], method)(
                 volume_options=volume_options)
+        except Exception:
+            LOG.error("Create Heketi volume command failed")
+            raise
 
     @utils.timeout(60)
     @atomic.action_timer("volume_list")
@@ -30,9 +37,12 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volumes to be listed.
         """
-        return getattr(
-            self.context["heketi_client"],
-            "%svolume_list" % ("" if volume_type == "file" else "block"))()
+        method = "%svolume_list" % ("" if volume_type == "file" else "block")
+        try:
+            return getattr(self.context["heketi_client"], method)()
+        except Exception:
+            LOG.error("List Heketi volumes command failed")
+            raise
 
     @utils.timeout(60)
     @atomic.action_timer("volume_info")
@@ -43,10 +53,12 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volume to be taken.
         """
-        return getattr(
-            self.context["heketi_client"],
-            "%svolume_info" % ("" if volume_type == "file" else "block"))(
-                volume_id)
+        method = "%svolume_info" % ("" if volume_type == "file" else "block")
+        try:
+            return getattr(self.context["heketi_client"], method)(volume_id)
+        except Exception:
+            LOG.error("Get Heketi volume info command failed")
+            raise
 
     @utils.timeout(300)
     @atomic.action_timer("volume_expand")
@@ -58,10 +70,13 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of a volume to be expanded.
         """
-        return getattr(
-            self.context["heketi_client"],
-            "%svolume_expand" % ("" if volume_type == "file" else "block"))(
+        method = "%svolume_expand" % ("" if volume_type == "file" else "block")
+        try:
+            return getattr(self.context["heketi_client"], method)(
                 volume_id, expand_size=expand_size)
+        except Exception:
+            LOG.error("Expand Heketi volume command failed")
+            raise
 
     @utils.timeout(300)
     @atomic.action_timer("volume_delete")
@@ -72,7 +87,9 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volume to be deleted.
         """
-        return getattr(
-            self.context["heketi_client"],
-            "%svolume_delete" % ("" if volume_type == "file" else "block"))(
-                volume_id)
+        method = "%svolume_delete" % ("" if volume_type == "file" else "block")
+        try:
+            return getattr(self.context["heketi_client"], method)(volume_id)
+        except Exception:
+            LOG.error("Delete Heketi volume command failed")
+            raise
