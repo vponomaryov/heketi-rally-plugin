@@ -254,8 +254,9 @@
           sleep_before_deletion: 0.02
       runner:
         constant:
-          times: 2
-          concurrency: 2
+          # TODO(vponomar): increase following when BZ-1621436 is fixed.
+          times: 1
+          concurrency: 1
       contexts:
         heketi_client:
           server: "{{ heketi_server_url }}"
@@ -271,8 +272,9 @@
           sleep_before_deletion: 0.02
       runner:
         constant:
-          times: 2
-          concurrency: 2
+          # TODO(vponomar): increase following when BZ-1621436 is fixed.
+          times: 1
+          concurrency: 1
       contexts:
         heketi_client:
           server: "{{ heketi_server_url }}"
