@@ -21,7 +21,8 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of a volume to be created.
         """
-        method = "%svolume_create" % ("" if volume_type == "file" else "block")
+        method = "%svolume_create" % (
+            "" if volume_type == "file" else "block_")
         try:
             return getattr(self.context["heketi_client"], method)(
                 volume_options=volume_options)
@@ -37,7 +38,7 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volumes to be listed.
         """
-        method = "%svolume_list" % ("" if volume_type == "file" else "block")
+        method = "%svolume_list" % ("" if volume_type == "file" else "block_")
         try:
             return getattr(self.context["heketi_client"], method)()
         except Exception:
@@ -53,7 +54,7 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volume to be taken.
         """
-        method = "%svolume_info" % ("" if volume_type == "file" else "block")
+        method = "%svolume_info" % ("" if volume_type == "file" else "block_")
         try:
             return getattr(self.context["heketi_client"], method)(volume_id)
         except Exception:
@@ -70,7 +71,8 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of a volume to be expanded.
         """
-        method = "%svolume_expand" % ("" if volume_type == "file" else "block")
+        method = "%svolume_expand" % (
+            "" if volume_type == "file" else "block_")
         try:
             return getattr(self.context["heketi_client"], method)(
                 volume_id, expand_size=expand_size)
@@ -87,7 +89,8 @@ class HeketiScenarioBase(scenario.Scenario):
         :param volume_type: str, choices are 'file' and 'block'. Defines
             the type of volume to be deleted.
         """
-        method = "%svolume_delete" % ("" if volume_type == "file" else "block")
+        method = "%svolume_delete" % (
+            "" if volume_type == "file" else "block_")
         try:
             return getattr(self.context["heketi_client"], method)(volume_id)
         except Exception:
