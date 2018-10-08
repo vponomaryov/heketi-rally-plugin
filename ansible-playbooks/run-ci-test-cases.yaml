@@ -16,8 +16,9 @@
     run_positive_test_cases: true
     run_negative_heketi_device_disable_test_cases: true
     run_negative_heketi_node_disable_test_cases: true
-    run_negative_restart_glusterd_service_test_cases: true
-    run_negative_reboot_gluster_node_test_cases: true
+    # TODO(vponomar): set following two back to 'true' when BZ-1632873 is fixed
+    run_negative_restart_glusterd_service_test_cases: false
+    run_negative_reboot_gluster_node_test_cases: false
   tasks:
   - name: List defined vars for debug reasons
     debug:
@@ -363,6 +364,8 @@
     - set_fact:
         stop_playbook_execution: "{{ current_block_failed is defined }}"
     when:
+    # NOTE(vponomar): Skip this negative test due to BZ-1632873
+    - false
     - not not (run_negative_restart_glusterd_service_test_cases | bool)
     - not stop_playbook_execution
 
@@ -445,6 +448,8 @@
     - set_fact:
         stop_playbook_execution: "{{ current_block_failed is defined }}"
     when:
+    # NOTE(vponomar): Skip this negative test due to BZ-1632873
+    - false
     - not not (run_negative_reboot_gluster_node_test_cases | bool)
     - not stop_playbook_execution
 
