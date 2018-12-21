@@ -69,15 +69,30 @@ class OCPScenarioBase(scenario.Scenario):
                time.time() - start_time < creation_timeout):
             time.sleep(creation_waiting_step)
             pvc = self._pvc_get(name=name, namespace=namespace)
-        if pvc.status.phase.lower() != 'bound':
-            if delete_pvc_if_failed:
-                self._pvc_delete(name, namespace)
-            raise Exception(
-                'Failed to wait for PVC to reach Bound status. '
-                'PVC name is "%s" and its status is "%s"' % (
-                    name, pvc.status.phase)
-            )
-        return pvc
+        if pvc.status.phase.lower() == 'bound':
+            return pvc
+
+        # Handling situation when timeout has been reached
+        try:
+            pvc_events = self._event_list(obj_name=name, namespace=namespace)
+        except Exception:
+            pvc_events = "?"
+        if delete_pvc_if_failed:
+            self._pvc_delete(name, namespace)
+        raise Exception(
+            "Failed to wait for PVC to reach the 'Bound' state. "
+            "PVC name is '%s' and its status is '%s'. \n"
+            "PVC events: %s" % (name, pvc.status.phase, pvc_events))
+
+    @atomic.action_timer("event_list")
+    def _event_list(self, obj_name, namespace=None):
+        """Atomic action for listing object events based on its name."""
+        field_selector = "involvedObject.name=%s" % obj_name
+        if namespace:
+            return self.client.list_namespaced_event(
+                namespace, field_selector=field_selector)
+        return self.client.list_event_for_all_namespaces(
+            field_selector=field_selector)
 
     @atomic.action_timer("pvc_get")
     def _pvc_get(self, name, namespace='default'):
