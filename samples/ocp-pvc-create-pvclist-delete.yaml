@@ -7,8 +7,8 @@
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
-          - 'glusterfs-cns'
-          - 'glusterfs-cns-block'
+          - 'glusterfs-storage'
+          - 'glusterfs-storage-block'
           namespace: 'default'
           size: 1
           name_prefix: 'rally-pvc-create-pvclist-delete'

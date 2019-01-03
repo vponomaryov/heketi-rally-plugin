@@ -1,7 +1,7 @@
 # NOTE(vponomar): run it from OCP client node
 ---
 - name: List gluster nodes
-  shell: "oc get nodes -l glusterfs=cns-host -o=custom-columns=:.metadata.name"
+  shell: "oc get nodes -l glusterfs=storage-host -o=custom-columns=:.metadata.name"
   register: oc_nodes
 
 - name: Pick up one gluster node name

@@ -7,7 +7,7 @@
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
           name_prefix: 'rally-pvc-create-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -23,7 +23,7 @@
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
           name_prefix: 'rally-pvc-create-pvclist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -39,7 +39,7 @@
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
           name_prefix: 'rally-pvc-create-pvlist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -55,7 +55,7 @@
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-blockpvc-create-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -71,7 +71,7 @@
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-blockpvc-create-pvclist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -87,7 +87,7 @@
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-blockpvc-create-pvlist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -103,8 +103,8 @@
       scenario:
         OCP.pvc_create_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-pvc-create-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -120,8 +120,8 @@
       scenario:
         OCP.pvc_create_pvclist_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-pvc-create-pvclist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
@@ -137,8 +137,8 @@
       scenario:
         OCP.pvc_create_pvlist_delete:
           storage_classes:
-          - "{{ ocp_file_sc | default('glusterfs-cns') }}"
-          - "{{ ocp_block_sc | default('glusterfs-cns-block') }}"
+          - "{{ ocp_file_sc | default('glusterfs-storage') }}"
+          - "{{ ocp_block_sc | default('glusterfs-storage-block') }}"
           name_prefix: 'rally-pvc-create-pvlist-delete'
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5

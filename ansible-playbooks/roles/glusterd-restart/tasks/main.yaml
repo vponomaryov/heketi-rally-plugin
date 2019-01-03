@@ -3,7 +3,7 @@
 # down amount of gluster pods. Run it from OCP client.
 
 - name: List gluster nodes
-  shell: "oc get nodes -l glusterfs=cns-host -o=custom-columns=:.metadata.name"
+  shell: "oc get nodes -l glusterfs=storage-host -o=custom-columns=:.metadata.name"
   register: oc_nodes
 
 - name: Pick up one gluster node name
@@ -22,11 +22,11 @@
     seconds: "{{ downtime_in_seconds | default(30) }}"
 
 - name: Add gluster label back to the gluster node to make its gluster pod be created
-  shell: "oc label nodes {{ gluster_node_name }} glusterfs=cns-host"
+  shell: "oc label nodes {{ gluster_node_name }} glusterfs=storage-host"
 
 # Output is following:
-# NAMESPACE NAME                 READY STATUS  RESTARTS AGE IP   NODE
-# cns       glusterfs-cns-45cdv  1/1   Running 0        1d  <ip> <node-name>
+# NAMESPACE NAME                     READY STATUS  RESTARTS AGE IP   NODE
+# storage   glusterfs-storage-45cdv  1/1   Running 0        1d  <ip> <node-name>
 - name: Define command for getting gluster POD for chosen node
   set_fact:
     get_gluster_pod_cmd: "oc get pods --all-namespaces -l glusterfs-node=pod

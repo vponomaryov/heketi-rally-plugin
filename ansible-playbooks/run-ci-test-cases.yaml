@@ -47,9 +47,9 @@
     command: "python -c \"import yaml ;
         config = yaml.load(open('{{ tests_config_path }}', 'r'));
         print(list(config['ocp_servers']['master'].keys())[0]);
-        print(config['cns']['heketi_config']['heketi_server_url']);
-        print(config['cns']['heketi_config']['heketi_cli_user']);
-        print(config['cns']['heketi_config']['heketi_cli_key'])\""
+        print(config['openshift']['heketi_config']['heketi_server_url']);
+        print(config['openshift']['heketi_config']['heketi_cli_user']);
+        print(config['openshift']['heketi_config']['heketi_cli_key'])\""
     register: config_data
   - name: Save config data to the host vars
     set_fact:
