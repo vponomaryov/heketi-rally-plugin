@@ -11,6 +11,7 @@
 #     Rally test cases where one of Gluster nodes gets rebooted.
 ---
 - hosts: localhost
+  connection: local
   gather_facts: yes
   vars:
     debug: true
