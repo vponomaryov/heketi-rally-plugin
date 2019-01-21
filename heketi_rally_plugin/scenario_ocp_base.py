@@ -141,7 +141,7 @@ class OCPScenarioBase(scenario.Scenario):
         pvcs = []
         for storage_class in storage_classes:
             pvcs.append(self._pvc_create(
-                storage_class=storage_class,
+                storage_class=storage_class.strip(),
                 namespace=namespace,
                 size=size,
                 name_prefix=name_prefix,

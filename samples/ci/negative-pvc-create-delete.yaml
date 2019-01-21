@@ -18,8 +18,8 @@
           storage_classes:
           - "{% if volume_type == 'file'
              %}{{ (ocp_file_sc | default('glusterfs-storage')) }}{% else
-             %}{{ (ocp_block_sc | default('glusterfs-storage-block')) }}
-             {% endif %}"
+             %}{{ (ocp_block_sc | default('glusterfs-storage-block'))
+             }}{% endif %}"
           creation_waiting_step: 1.7
           deletion_waiting_step: 1.5
       runner:
