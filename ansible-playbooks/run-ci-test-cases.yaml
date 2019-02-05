@@ -69,6 +69,13 @@
       dest: "{{ hostvars['localhost'].ocp_config_path }}"
       flat: true
     delegate_to: "{{ master_ipv4 }}"
+  - name: Set master IP address instead of hostname for case it is not resolvable
+    lineinfile:
+      path: "{{ ocp_config_path }}"
+      regexp: '^(.*)(?:server:)(?:\s*)(http(?:s?))(?:://)(?:[^:]*)(:[\d+]{1,5}|)([\s]*)$'
+      line: "\\1server: \\2://{{ master_ipv4 }}\\3\\4"
+      backrefs: yes
+    ignore_errors: yes
   - name: Create tag  for rally tasks to use for report generation
     set_fact:
       rally_task_tag: "rally-{{ ansible_date_time.iso8601_basic_short }}"
