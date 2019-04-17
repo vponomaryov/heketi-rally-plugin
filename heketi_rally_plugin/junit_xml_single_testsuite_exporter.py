@@ -58,6 +58,7 @@ class JUnitXMLSingleTestSuiteExporter(exporter.TaskExporter):
         updated_at = dt.datetime.strptime(t["updated_at"], "%Y-%m-%dT%H:%M:%S")
         testsuite_data = {
             "id": t["uuid"],
+            "name": "heketi-rally-cases",
             "tests": 0,
             "errors": "0",
             "skipped": "0",
