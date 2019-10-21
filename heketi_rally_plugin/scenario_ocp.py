@@ -21,9 +21,9 @@ class OCPPVCListScenario(scenario_base.OCPScenarioBase):
 class OCPPVCCreatePVCDeleteScenario(scenario_base.OCPScenarioBase):
     def run(self, storage_classes, namespace='default', size=1,
             name_prefix="rally",
-            creation_timeout=120.0, creation_waiting_step=0.7,
+            creation_timeout=300.0, creation_waiting_step=0.7,
             sleep_before_deletion=0.1,
-            deletion_timeout=120.0, deletion_waiting_step=0.5,
+            deletion_timeout=180.0, deletion_waiting_step=0.5,
             delete_pvc_if_failed=True):
         """PVC creation and deletion."""
         self._run(
@@ -44,9 +44,9 @@ class OCPPVCCreatePVCDeleteScenario(scenario_base.OCPScenarioBase):
 class OCPPVCCreatePVCListPVCDeleteScenario(scenario_base.OCPScenarioBase):
     def run(self, storage_classes, namespace='default', size=1,
             name_prefix="rally",
-            creation_timeout=120.0, creation_waiting_step=0.7,
+            creation_timeout=300.0, creation_waiting_step=0.7,
             sleep_before_deletion=0.1,
-            deletion_timeout=120.0, deletion_waiting_step=0.5,
+            deletion_timeout=180.0, deletion_waiting_step=0.5,
             delete_pvc_if_failed=True):
         """PVC creation and deletion."""
         self._run(
@@ -67,9 +67,9 @@ class OCPPVCCreatePVCListPVCDeleteScenario(scenario_base.OCPScenarioBase):
 class OCPPVCCreatePVListPVCDeleteScenario(scenario_base.OCPScenarioBase):
     def run(self, storage_classes, namespace='default', size=1,
             name_prefix="rally",
-            creation_timeout=120.0, creation_waiting_step=0.7,
+            creation_timeout=300.0, creation_waiting_step=0.7,
             sleep_before_deletion=0.1,
-            deletion_timeout=120.0, deletion_waiting_step=0.5,
+            deletion_timeout=180.0, deletion_waiting_step=0.5,
             delete_pvc_if_failed=True):
         """PVC creation and deletion."""
         self._run(
